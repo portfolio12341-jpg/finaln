@@ -400,10 +400,19 @@ export default function ScrollCanvas() {
           display: 'block',
           width: '100%',
           height: '100%',
-          opacity: ready ? 0.38 : 0,
+          opacity: ready ? 0.40 : 0, // slight opacity adjustment to optimize visibility through the blur
+          filter: 'blur(4px) saturate(105%)',
           transition: 'opacity 0.6s ease',
           transform: 'translate3d(0,0,0)',
           willChange: 'transform',
+        }}
+      />
+      {/* Ultra-Design High-Performance Glass Overlay */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.08) 100%)',
+          boxShadow: 'inset 0 0 100px rgba(255, 255, 255, 0.012)',
         }}
       />
     </div>
