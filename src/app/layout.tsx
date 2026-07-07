@@ -69,6 +69,27 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SmoothScroll>
+          {/* Full-screen video background */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: -20,
+              pointerEvents: 'none',
+            }}
+          >
+            <source src="/Executive_office_background_video_1080p_202607071608.mp4" type="video/mp4" />
+          </video>
+
           {/* Global Content Wrapper */}
           <div className="relative z-10 flex flex-col min-h-screen">
             {children}
