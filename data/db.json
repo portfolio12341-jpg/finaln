@@ -1,0 +1,226 @@
+{
+  "personal": {
+    "name": "Nency Soni ",
+    "title": "Aspiring Company Secretary & Law Student",
+    "location": "Ratlam, Madhya Pradesh",
+    "email": "Nsnency000@gmail.com",
+    "phone": "9827369776",
+    "linkedin": "https://share.google/CiyCfIBdBfnUMnWI2",
+    "intro": "Welcome! I'm Nency Soni, an aspiring Company Secretary and law student who enjoys exploring legal concepts through research and writing. This website reflects my learning journey and is dedicated to making law easier to understand, one concept at a time.",
+    "objective": "To continuously deepen my understanding of corporate and commercial laws, strengthen my legal research and drafting skills, and build a career where I can contribute meaningfully to legal practice while making legal concepts more accessible to students and professionals.",
+    "quote": "If I can't explain it simply, I haven't understood it well enough.",
+    "motto": "Study with curiosity. Master the details.",
+    "profilePhoto": "/uploads/file_00000000df5871f895c99e4056e3db9b-1783291385011.webp",
+    "logoText": "Nency Soni"
+  },
+  "education": [
+    {
+      "id": "edu-1",
+      "institution": "The Institute of Company Secretaries of India",
+      "degree": "Company Secretary (CS)",
+      "fieldOfStudy": "Corporate Law, Governance & Compliance",
+      "startYear": "2021",
+      "endYear": "Present",
+      "status": "Professional Programme - Appeared (Executive Programme Cleared)",
+      "description": "Studied corporate governance, company law, securities laws, insolvency, drafting, strategic management, and corporate compliance."
+    },
+    {
+      "id": "edu-2",
+      "institution": "Dr. Kailashnath katju Law College, Vikram University, Ujjain (M.P.)",
+      "degree": "B.A. LL.B. (5 year Integrated course)",
+      "fieldOfStudy": "Law",
+      "startYear": "2021",
+      "endYear": "2026",
+      "status": "Result Awaited",
+      "description": "Studied constitutional law, criminal law, civil law, environmental law, legal drafting, and legal research. Participated in moot court competitions and completed academic research projects, including a dissertation."
+    }
+  ],
+  "experience": [
+    {
+      "id": "exp-1",
+      "title": "Judicial Internship",
+      "organization": "Judicial Magistrate First Class, District Court, Ratlam, (M.P.)",
+      "duration": "One Week",
+      "responsibilities": [
+        "Observed court proceedings and judicial processes.",
+        "Gained exposure to practical aspects of legal procedure.",
+        "Developed an understanding of court administration and judicial functioning."
+      ]
+    }
+  ],
+  "skills": [
+    "Legal Research and Analysis",
+    "Legal Drafting",
+    "MS Word, Excel and PowerPoint",
+    "Communication and Presentation Skills"
+  ],
+  "languages": [
+    "English",
+    "Hindi"
+  ],
+  "activities": [
+    {
+      "id": "act-1",
+      "title": "Moot Court Competitions",
+      "description": "Participated in college-level moot court competitions and represented the petitioner in the Bhopal Gas leak tragedy case. Conducted legal research, prepared arguments, and drafted legal memorials and written submissions."
+    },
+    {
+      "id": "act-2",
+      "title": "Supreme Court Exposure",
+      "description": "Attended proceedings at the Supreme Court of India as part of an academic visit. Observed courtroom advocacy, judicial proceedings, and court functioning."
+    },
+    {
+      "id": "act-3",
+      "title": "Research Projects",
+      "description": "Authorized a dissertation on Environmental Law and Sustainable Development. Seminar project: Conducted research on legal framework and regulatory aspects of surrogacy. Undertook a field survey and empirical research on issues concerning elderly residents in old age homes."
+    }
+  ],
+  "achievements": [
+    "Participated in inter-college competitions.",
+    "Participated in various cultural events and activities organized by the college and won prizes in dance competitions at school and college level."
+  ],
+  "blogs": [],
+  "gallery": [
+    {
+      "id": "gal-1783286783603",
+      "title": "District Court Internship",
+      "url": "/uploads/1000302737-1783286701698.webp",
+      "urls": [
+        "/uploads/1000302737-1783286701698.webp",
+        "/uploads/1000302740-1783286709985.webp",
+        "/uploads/1000302742-1783286714957.webp"
+      ],
+      "description": "I had the incredible opportunity to intern for a week with Magistrate First Class, Hon'ble Rupali Birla Ma'am, where I observed courtroom proceedings, examined evidence, and witnessed advocates present and cross-examine cases. It was a valuable learning experience—engaging with the courtroom staff, interacting with fellow advocates and judges, and even meeting the Principal District and Sessions Judge, Hon'ble Neena Aashapura Ma'am. Every moment was insightful and enriching.\n\nI'm also excited to share that I've secured another court internship certificate through my college. I'm truly grateful to my college and to God for this continued journey. Sharing these experiences with my friends made it all the more memorable and incredible!",
+      "category": "court",
+      "uploadDate": "7/6/2026"
+    },
+    {
+      "id": "gal-1783287602963",
+      "title": "Supreme Court Academic Visit",
+      "url": "/uploads/supreme_court_india-1783287508244.webp",
+      "urls": [
+        "/uploads/supreme_court_india-1783287508244.webp",
+        "/uploads/1000302746-1783287514931.webp",
+        "/uploads/1000302748-1783287531555.webp"
+      ],
+      "description": "I visited the Supreme Court of India to attend live hearings of a court session. Having the opportunity to tour the entire Supreme Court was incredibly insightful and deepened my respect for the judiciary.",
+      "category": "court",
+      "uploadDate": "7/6/2026"
+    },
+    {
+      "id": "gal-1783287667715",
+      "title": "CS Professional Journey",
+      "url": "/uploads/1000302752-1783287610318.webp",
+      "urls": [
+        "/uploads/1000302752-1783287610318.webp",
+        "/uploads/1000302750-1783287615361.webp"
+      ],
+      "description": "That day was special because it was my first experience recognizing myself as a CS student and realizing the significance of having the academic title 'CS' as a prefix to my name. I had the opportunity to meet some CS professionals and had great conversations with them. Now, I look forward to experiencing the same journey during the Executive Development Programme (EDP) once I pass my CS Executive exam.",
+      "category": "college",
+      "uploadDate": "7/6/2026"
+    }
+  ],
+  "certificates": [
+    {
+      "id": "cert-1783287820075",
+      "name": "one day orientation programme",
+      "issuer": "ICSI",
+      "date": "",
+      "url": "/uploads/1000302750-1783287741394.webp",
+      "urls": [
+        "/uploads/1000302750-1783287741394.webp"
+      ]
+    }
+  ],
+  "messages": [],
+  "seo": {
+    "title": "Nency Soni | Company Secretary & Law Student Portfolio",
+    "description": "Welcome to the official portfolio of Nency Soni, an aspiring Company Secretary (CS) and Law Student. Explore legal articles, projects, and professional background.",
+    "keywords": "Nency Soni, Company Secretary, Law Student, Corporate Compliance, Legal Drafting, Legal Research, Portfolio, Ratlam"
+  },
+  "milestones": [
+    {
+      "id": "mile-1",
+      "year": "2021 Entry",
+      "title": "Started B.A. LL.B. Law Course"
+    },
+    {
+      "id": "mile-2",
+      "year": "CS Milestone",
+      "title": "Passed CS Executive Level"
+    },
+    {
+      "id": "mile-3",
+      "year": "SC Internship",
+      "title": "Supreme Court Academic Delegation"
+    }
+  ],
+  "supremeCourt": {
+    "tourTitle": "The Tour",
+    "tourText": "I visited the Supreme Court of India in New Delhi to attend the hearings of a live court session. Having the opportunity to tour the entire Supreme Court was incredibly insightful and deepened my respect for the judiciary.",
+    "opportunityTitle": "The Opportunity",
+    "opportunityText": "It was an unforgettable experience, and I would like to thank my college, KNK Law College, for providing me with this opportunity. I am grateful that I achieved this chance based on my academic performance and personality.",
+    "horizonsTitle": "Expanded Horizons",
+    "horizonsText": "It is truly a huge achievement for me, expanding my horizons from studying law within the four walls of a classroom to experiencing the Supreme Court in Delhi. It was an amazing journey, and I'm excited about what the future holds."
+  },
+  "skillsGroup": {
+    "cs": [
+      "Companies Act Compliance",
+      "Corporate Governance",
+      "Compliance Audits",
+      "SEBI Disclosures"
+    ],
+    "law": [
+      "Legal Research",
+      "Legal Drafting",
+      "Constitutional Law",
+      "Appellate Advocacy Support"
+    ],
+    "pro": [
+      "Strategic Communication",
+      "Presentation & Briefing",
+      "Office Productivity Suite",
+      "Analytical Drafting"
+    ]
+  },
+  "sectionOrder": [
+    "home",
+    "about",
+    "journey",
+    "skills",
+    "supremecourt",
+    "gallery",
+    "research",
+    "certificates",
+    "contact"
+  ],
+  "layoutSettings": {
+    "home": {
+      "textPosition": "center"
+    },
+    "about": {
+      "textPosition": "left",
+      "layoutSide": "left"
+    },
+    "journey": {
+      "textPosition": "left",
+      "layoutSide": "left"
+    },
+    "skills": {
+      "textPosition": "center"
+    },
+    "supremecourt": {
+      "textPosition": "left"
+    },
+    "research": {
+      "textPosition": "left",
+      "layoutSide": "left"
+    },
+    "certificates": {
+      "textPosition": "center"
+    },
+    "contact": {
+      "textPosition": "center"
+    }
+  }
+}

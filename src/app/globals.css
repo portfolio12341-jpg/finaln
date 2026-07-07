@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0b0908;
+  --color-foreground: #f8fafc;
+  
+  --color-space-black: #0b0908;
+  --color-deep-blue: #120e0d;
+  --color-royal-blue: #c5a880;
+  --color-gold: #d4af37;
+  
+  --font-serif: var(--font-serif);
+  --font-cursive: var(--font-cursive);
+  --font-gothic: var(--font-gothic);
+  
+  --animate-pulse-slow: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow-pulse: glow-pulse 3s infinite alternate;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.15), 0 0 10px rgba(197, 168, 128, 0.1); }
+  100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.3), 0 0 25px rgba(197, 168, 128, 0.2); }
+}
+
+body {
+  background-color: #0b0908;
+  color: #f8fafc;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Legal Serif heading styling */
+.serif-heading {
+  font-family: var(--font-serif), Georgia, serif;
+  letter-spacing: 0.02em;
+}
+
+/* Elegant Cursive Script styling */
+.cursive-text {
+  font-family: var(--font-cursive), cursive, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 9, 8, 0.9);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.6);
+}
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-cursive: 'Alex Brush', cursive, sans-serif;
+  --font-gothic: 'Pirata One', 'UnifrakturCook', Georgia, serif;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+@utility font-gothic {
+  font-family: var(--font-gothic);
+}
+
+@utility glass-panel {
+  background: rgba(18, 14, 13, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility glass-card-hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(212, 175, 55, 0.15);
+  transform: translateY(-4px);
+}
+
+@utility neon-glow-text {
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+@utility ambient-glow {
+  box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.15), 0 0 80px -20px rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.15) !important;
+  background: linear-gradient(to bottom right, rgba(212, 175, 55, 0.03), rgba(18, 14, 13, 0.8)) !important;
+}
+
+/* Custom premium radial glowing dot-matrix grid overlay */
+.bg-radial-grid {
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0),
+    radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+}
+
+/* Custom utility for box reflection and contact text shadow to avoid inline styles */
+.box-reflect {
+  -webkit-box-reflect: below -15px linear-gradient(transparent 35%, rgba(212, 175, 55, 0.15));
+}
+
+.connect-text-shadow {
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.95), 0 0 22px rgba(255, 145, 0, 0.85), 0 0 45px rgba(255, 69, 0, 0.65);
+}
+
+/* Legal Journal Style */
+.legal-journal {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-left: 5px solid #d4af37;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.4);
+}
+
+.legal-journal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10px;
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.legal-journal:hover {
+  transform: rotateY(-8deg) translateX(4px) translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 8px 8px 30px rgba(212, 175, 55, 0.15), 0 0 2px rgba(212, 175, 55, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+/* Framed Certificate Style */
+.certificate-frame {
+  border: 8px solid rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.certificate-frame::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  pointer-events: none;
+  transition: all 0.4s ease;
+}
+
+.certificate-frame:hover {
+  border-color: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 15px 40px rgba(212, 175, 55, 0.12), inset 0 0 10px rgba(212, 175, 55, 0.1);
+}
+
+.certificate-frame:hover::after {
+  border-color: rgba(212, 175, 55, 0.7);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Glowing matrix grid */
+.skill-glow-icon {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.4s ease;
+}
+
+.skill-glow-icon:hover {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+/* 3D Cinematic perspective classes */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Handwriting font fallbacks */
+.font-handwritten {
+  font-family: 'Great Vibes', 'Alex Brush', 'Dancing Script', 'Brush Script MT', cursive;
+}
+
+/* Book fold 3D styling */
+.book-spine {
+  box-shadow: inset -5px 0 10px rgba(0, 0, 0, 0.5), 5px 0 10px rgba(0, 0, 0, 0.5);
+}
+.book-page-left {
+  background: linear-gradient(to right, #1a223f 0%, #111827 10%, #1e293b 100%);
+}
+.book-page-right {
+  background: linear-gradient(to left, #1a223f 0%, #111827 10%, #1e293b 100%);
+}
+
+/* Make all small texts a little bigger and bold */
+.text-xxs,
+[class*="text-[9px]"],
+[class*="text-[9px]/"] {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em;
+}
+
+.text-xs,
+[class*="text-[10px]"],
+[class*="text-[10px]/"] {
+  font-size: 0.825rem !important;
+  font-weight: 600 !important;
+}
+
+.text-sm {
+  font-size: 0.925rem !important;
+  font-weight: 500 !important;
+}
+
+/* ── Ambient light overlay ─────────────────────────────────────────────── */
+
+@keyframes ambient-breathe {
+  0%   { opacity: 0.85; }
+  50%  { opacity: 1.00; }
+  100% { opacity: 0.85; }
+}
+
+.ambient-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 15% 12%,
+      rgba(80, 110, 190, 0.18) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 55% 50% at 85% 88%,
+      rgba(200, 155, 40, 0.15) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 80% at 50% 50%,
+      transparent 25%,
+      rgba(4, 3, 2, 0.88) 100%
+    );
+  animation: ambient-breathe 30s ease-in-out infinite;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-overlay { animation: none; }
+}
