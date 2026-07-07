@@ -90,6 +90,24 @@ export default function RootLayout({
             <source src="/Executive_office_background_video_1080p_202607071608.mp4" type="video/mp4" />
           </video>
 
+          {/* Ambient black + navy blue light overlay */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: -10,
+              pointerEvents: 'none',
+              background: `
+                radial-gradient(ellipse 80% 60% at 50% 0%,   rgba(10, 20, 60, 0.55) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 0% 50%,   rgba(5, 15, 50, 0.45) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 50% at 100% 50%, rgba(5, 15, 50, 0.45) 0%, transparent 65%),
+                radial-gradient(ellipse 100% 40% at 50% 100%, rgba(0, 0, 10, 0.65) 0%, transparent 70%),
+                linear-gradient(180deg, rgba(0,0,8,0.30) 0%, rgba(0,5,25,0.18) 50%, rgba(0,0,8,0.40) 100%)
+              `,
+            }}
+          />
+
           {/* Global Content Wrapper */}
           <div className="relative z-10 flex flex-col min-h-screen">
             {children}
