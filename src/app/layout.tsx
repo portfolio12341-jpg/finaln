@@ -4,6 +4,7 @@ import './globals.css';
 import SmoothScroll from '@/components/layout/SmoothScroll';
 import ScrollCanvasWrapper from '@/components/canvas/ScrollCanvasWrapper';
 import { getDb } from '@/lib/db';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -81,6 +82,7 @@ export default function RootLayout({
             {children}
           </div>
         </SmoothScroll>
+        <SpeedInsights />
       </body>
     </html>
   );
