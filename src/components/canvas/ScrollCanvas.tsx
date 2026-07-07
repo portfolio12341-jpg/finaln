@@ -407,13 +407,11 @@ export default function ScrollCanvas() {
           willChange: 'transform',
         }}
       />
-      {/* Glassmorphic Sheet Layer */}
+      {/* Smooth Vignette Layer */}
       <div 
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 50%, rgba(0, 0, 0, 0.12) 100%)',
-          backdropFilter: 'blur(1px)',
-          boxShadow: 'inset 0 0 120px rgba(255, 255, 255, 0.015)',
+          background: 'radial-gradient(circle at center, transparent 0%, rgba(11, 9, 8, 0.85) 100%)',
         }}
       />
     </div>
