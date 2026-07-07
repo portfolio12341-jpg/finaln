@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Cormorant_Garamond, Alex_Brush, Pirata_One } from 'next/font/google';
 import './globals.css';
 import SmoothScroll from '@/components/layout/SmoothScroll';
-import ScrollCanvasWrapper from '@/components/canvas/ScrollCanvasWrapper';
 import { getDb } from '@/lib/db';
 
 const inter = Inter({
@@ -70,12 +69,6 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SmoothScroll>
-          {/* Cinematic Scroll-Driven Canvas Background */}
-          <ScrollCanvasWrapper />
-
-          {/* Subtle Ambient Light Overlay */}
-          <div aria-hidden="true" className="ambient-overlay" />
-
           {/* Global Content Wrapper */}
           <div className="relative z-10 flex flex-col min-h-screen">
             {children}
