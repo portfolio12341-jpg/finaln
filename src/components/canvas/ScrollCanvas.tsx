@@ -445,7 +445,7 @@ export default function ScrollCanvas() {
           width: '100%',
           height: '100%',
           opacity: ready ? 0.22 : 0,
-          filter: 'blur(12px) saturate(120%) brightness(0.88)',
+          filter: 'blur(6px) saturate(115%) brightness(0.90)',
           transition: 'opacity 0.6s ease',
           transform: 'translate3d(0,0,0)',
           willChange: 'transform',
