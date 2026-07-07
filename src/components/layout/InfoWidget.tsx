@@ -61,64 +61,64 @@ export default function InfoWidget() {
       `}</style>
 
       {/* Outer ambient blur shadow glow */}
-      <div className="absolute inset-0 rounded-full bg-blue-600/10 blur-xl opacity-80 group-hover:bg-blue-500/20 transition-all duration-700 pointer-events-none" />
+      <div className="absolute inset-0 rounded-full bg-blue-600/5 blur-lg opacity-85 group-hover:bg-blue-500/15 transition-all duration-700 pointer-events-none" />
 
       {/* Main Capsule */}
-      <div className="relative w-[320px] md:w-[350px] h-[46px] md:h-[50px] rounded-full bg-[#0a0808]/92 backdrop-blur-lg border border-[#cda052]/35 flex items-center justify-between px-5 breathing-neon overflow-hidden transition-all duration-500 hover:border-[#f7e0a3] hover:scale-[1.02] shadow-[0_0_15px_rgba(30,58,138,0.45)]">
+      <div className="relative w-[230px] md:w-[250px] h-[32px] md:h-[36px] rounded-full bg-[#0a0808]/92 backdrop-blur-lg border border-[#cda052]/30 flex items-center justify-between px-3.5 breathing-neon overflow-hidden transition-all duration-500 hover:border-[#f7e0a3] hover:scale-[1.02] shadow-[0_0_12px_rgba(30,58,138,0.35)]">
         
         {/* Shimmer light sweep */}
-        <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-[#f7e0a3]/8 to-transparent skew-x-12 animate-shimmer pointer-events-none" />
+        <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-[#f7e0a3]/5 to-transparent skew-x-12 animate-shimmer pointer-events-none" />
 
         {/* Section 1: Weather */}
-        <div className="flex items-center space-x-2.5 z-10">
-          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-950/40 border border-blue-900/30 shadow-[0_0_8px_rgba(59,130,246,0.2)]">
+        <div className="flex items-center space-x-1.5 z-10">
+          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-950/40 border border-blue-900/30 shadow-[0_0_5px_rgba(59,130,246,0.15)]">
             {isDayTime ? (
-              <Sun className="w-3.5 h-3.5 text-[#d4af37] animate-[spin_40s_linear_infinite]" />
+              <Sun className="w-2.5 h-2.5 text-[#d4af37] animate-[spin_40s_linear_infinite]" />
             ) : (
-              <Moon className="w-3.5 h-3.5 text-[#e5dec9]" />
+              <Moon className="w-2.5 h-2.5 text-[#e5dec9]" />
             )}
           </div>
           <div className="flex flex-col justify-center leading-none">
-            <span className="text-[10px] md:text-[11px] font-bold tracking-tight bg-gradient-to-r from-[#d4af37] via-[#f9f5d8] to-[#aa7c11] text-transparent bg-clip-text font-sans">
+            <span className="text-[8.5px] md:text-[9.5px] font-bold tracking-tight bg-gradient-to-r from-[#d4af37] via-[#f9f5d8] to-[#aa7c11] text-transparent bg-clip-text font-sans">
               {weather.temp}
             </span>
-            <span className="text-[7.5px] font-mono tracking-widest text-[#e5dec9]/60 font-semibold uppercase mt-0.5">
+            <span className="text-[6.5px] font-mono tracking-widest text-[#e5dec9]/60 font-semibold uppercase mt-0.5">
               {weather.cond}
             </span>
           </div>
         </div>
 
         {/* Divider 1 */}
-        <div className="w-px h-5 bg-gradient-to-b from-transparent via-[#cda052]/25 to-transparent z-10" />
+        <div className="w-px h-3.5 bg-gradient-to-b from-transparent via-[#cda052]/20 to-transparent z-10" />
 
         {/* Section 2: Live Time */}
-        <div className="flex items-center space-x-2.5 z-10">
-          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-950/40 border border-blue-900/30 shadow-[0_0_8px_rgba(59,130,246,0.2)]">
-            <Clock className="w-3.5 h-3.5 text-blue-400" />
+        <div className="flex items-center space-x-1.5 z-10">
+          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-950/40 border border-blue-900/30 shadow-[0_0_5px_rgba(59,130,246,0.15)]">
+            <Clock className="w-2.5 h-2.5 text-blue-400" />
           </div>
           <div className="flex flex-col justify-center leading-none">
-            <span className="text-[10px] md:text-[11px] font-bold tracking-tight bg-gradient-to-r from-[#d4af37] via-[#f9f5d8] to-[#aa7c11] text-transparent bg-clip-text font-sans font-semibold">
+            <span className="text-[8.5px] md:text-[9.5px] font-bold tracking-tight bg-gradient-to-r from-[#d4af37] via-[#f9f5d8] to-[#aa7c11] text-transparent bg-clip-text font-sans font-semibold">
               {time}
             </span>
-            <span className="text-[7.5px] font-mono tracking-widest text-blue-400/80 font-semibold uppercase mt-0.5">
+            <span className="text-[6.5px] font-mono tracking-widest text-blue-400/80 font-semibold uppercase mt-0.5">
               LIVE
             </span>
           </div>
         </div>
 
         {/* Divider 2 */}
-        <div className="w-px h-5 bg-gradient-to-b from-transparent via-[#cda052]/25 to-transparent z-10" />
+        <div className="w-px h-3.5 bg-gradient-to-b from-transparent via-[#cda052]/20 to-transparent z-10" />
 
         {/* Section 3: Date */}
-        <div className="flex items-center space-x-2.5 z-10">
-          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-950/40 border border-[#cda052]/25 shadow-[0_0_8px_rgba(212,175,55,0.15)]">
-            <Calendar className="w-3.5 h-3.5 text-[#d4af37]" />
+        <div className="flex items-center space-x-1.5 z-10">
+          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-950/40 border border-[#cda052]/25 shadow-[0_0_5px_rgba(212,175,55,0.1)]">
+            <Calendar className="w-2.5 h-2.5 text-[#d4af37]" />
           </div>
           <div className="flex flex-col justify-center leading-none">
-            <span className="text-[10px] md:text-[11px] font-bold tracking-tight bg-gradient-to-r from-[#d4af37] via-[#f9f5d8] to-[#aa7c11] text-transparent bg-clip-text font-sans">
+            <span className="text-[8.5px] md:text-[9.5px] font-bold tracking-tight bg-gradient-to-r from-[#d4af37] via-[#f9f5d8] to-[#aa7c11] text-transparent bg-clip-text font-sans">
               {dateStr}
             </span>
-            <span className="text-[7.5px] font-mono tracking-widest text-[#e5dec9]/60 font-semibold uppercase mt-0.5">
+            <span className="text-[6.5px] font-mono tracking-widest text-[#e5dec9]/60 font-semibold uppercase mt-0.5">
               DATE
             </span>
           </div>
