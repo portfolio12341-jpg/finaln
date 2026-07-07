@@ -407,13 +407,6 @@ export default function ScrollCanvas() {
           willChange: 'transform',
         }}
       />
-      {/* Smooth Vignette Layer */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(circle at center, transparent 0%, rgba(11, 9, 8, 0.85) 100%)',
-        }}
-      />
     </div>
   );
 }
