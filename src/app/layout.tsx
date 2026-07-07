@@ -87,7 +87,7 @@ export default function RootLayout({
               pointerEvents: 'none',
             }}
           >
-            <source src="/Executive_office_background_video_1080p_202607071608.mp4" type="video/mp4" />
+            <source src="/bg-video.mp4" type="video/mp4" />
           </video>
 
           {/* Ambient black + navy blue light overlay */}
