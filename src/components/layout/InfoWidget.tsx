@@ -8,6 +8,37 @@ export default function InfoWidget() {
   const [time, setTime] = useState('--:--');
   const [dateStr, setDateStr] = useState('-- ---');
   const [isDayTime, setIsDayTime] = useState(true);
+  const [weather, setWeather] = useState({ temp: '26°C', cond: 'CLEAR' });
+
+  const fetchWeather = async (lat: number, lon: number) => {
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      if (res.ok) {
+        const data = await res.json();
+        const current = data.current_weather;
+        if (current) {
+          const tempVal = Math.round(current.temperature);
+          const code = current.weathercode;
+          
+          let condStr = 'CLEAR';
+          if (code === 0) condStr = 'CLEAR';
+          else if ([1, 2, 3].includes(code)) condStr = 'PARTLY';
+          else if ([45, 48].includes(code)) condStr = 'FOGGY';
+          else if ([51, 53, 55].includes(code)) condStr = 'DRIZZLE';
+          else if ([61, 63, 65, 80, 81, 82].includes(code)) condStr = 'RAINY';
+          else if ([71, 73, 75].includes(code)) condStr = 'SNOWY';
+          else if ([95, 96, 99].includes(code)) condStr = 'STORM';
+          
+          setWeather({
+            temp: `${tempVal}°C`,
+            cond: condStr
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Weather fetch failed:", err);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -27,19 +58,25 @@ export default function InfoWidget() {
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
+
+    // Dynamic Geolocation Weather Setup
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn("Geolocation failed/denied, falling back to Mumbai:", error);
+          fetchWeather(19.0760, 72.8777); // Mumbai fallback coordinates
+        },
+        { timeout: 6000 }
+      );
+    } else {
+      fetchWeather(19.0760, 72.8777);
+    }
+
     return () => clearInterval(interval);
   }, []);
-
-  const getWeather = () => {
-    if (!mounted) return { temp: '26°C', cond: 'CLEAR' };
-    const hour = new Date().getHours();
-    if (hour >= 6 && hour < 12) return { temp: '24°C', cond: 'CALM' };
-    if (hour >= 12 && hour < 17) return { temp: '29°C', cond: 'SUNNY' };
-    if (hour >= 17 && hour < 21) return { temp: '25°C', cond: 'COOL' };
-    return { temp: '21°C', cond: 'CLEAR' };
-  };
-
-  const weather = getWeather();
 
   return (
     <div className="relative group select-none">
