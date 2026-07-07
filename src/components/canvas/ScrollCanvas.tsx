@@ -451,14 +451,6 @@ export default function ScrollCanvas() {
           willChange: 'transform',
         }}
       />
-      {/* Smooth glass overlay — static gradient, zero GPU cost on scroll */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.018) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,0.10) 100%)',
-          backdropFilter: 'none',
-        }}
-      />
     </div>
   );
 }
