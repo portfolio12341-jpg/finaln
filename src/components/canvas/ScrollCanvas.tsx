@@ -435,7 +435,7 @@ export default function ScrollCanvas() {
 
   return (
     <div
-      className="fixed inset-0 -z-20 bg-[#0b0908]"
+      className="fixed inset-0 -z-20"
       style={{ pointerEvents: 'none' }}
     >
       <canvas
@@ -444,8 +444,7 @@ export default function ScrollCanvas() {
           display: 'block',
           width: '100%',
           height: '100%',
-          opacity: ready ? 0.22 : 0,
-          filter: 'saturate(110%) brightness(0.92)',
+          opacity: ready ? 1 : 0,
           transition: 'opacity 0.6s ease',
           transform: 'translate3d(0,0,0)',
           willChange: 'transform',
