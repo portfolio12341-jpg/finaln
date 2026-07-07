@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Shield, LogOut, Menu, X, ArrowUpRight } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import InfoWidget from './InfoWidget';
 
 interface HeaderProps {
   isAdmin?: boolean;
@@ -180,34 +181,39 @@ export default function Header({ isAdmin = false }: HeaderProps) {
 
         {/* Desktop Navigation */}
         {!isAdmin ? (
-          <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={(e) => {
-                  handleScrollTo(e, item.href);
-                  handleNavItemClick(item.label);
-                }}
-                className="text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                {item.label}
-              </a>
-            ))}
+          <div className="hidden md:flex items-center space-x-6 xl:space-x-8">
+            <div className="hidden lg:block lg:mr-2 xl:mr-4">
+              <InfoWidget />
+            </div>
+            <nav className="flex items-center space-x-6 xl:space-x-8">
+              {navItems.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={(e) => {
+                    handleScrollTo(e, item.href);
+                    handleNavItemClick(item.label);
+                  }}
+                  className="text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-white transition-colors duration-300"
+                >
+                  {item.label}
+                </a>
+              ))}
 
 
-            {/* ── REAL Admin — only appears after 3× logo click ── */}
-            {secretUnlocked && (
-              <Link
-                href="/admin"
-                onClick={() => setSecretUnlocked(false)}
-                className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-gold/10 border border-gold/30 hover:bg-gold/20 transition-all text-xs font-semibold text-gold shadow-[0_0_12px_rgba(212,175,55,0.3)] animate-pulse"
-              >
-                <Shield className="w-3.5 h-3.5" />
-                <span>Admin</span>
-              </Link>
-            )}
-          </nav>
+              {/* ── REAL Admin — only appears after 3× logo click ── */}
+              {secretUnlocked && (
+                <Link
+                  href="/admin"
+                  onClick={() => setSecretUnlocked(false)}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-gold/10 border border-gold/30 hover:bg-gold/20 transition-all text-xs font-semibold text-gold shadow-[0_0_12px_rgba(212,175,55,0.3)] animate-pulse"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Admin</span>
+                </Link>
+              )}
+            </nav>
+          </div>
         ) : (
           <div className="hidden md:flex items-center space-x-6">
             <span className="text-xs font-mono text-gold uppercase tracking-widest bg-gold/5 px-3 py-1 rounded-full border border-gold/10">
