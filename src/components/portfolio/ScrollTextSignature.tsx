@@ -1,10 +1,23 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 
 export default function CursiveAutograph() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMobile = () => {
+      const width = window.innerWidth;
+      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(width < 768 || mobileUA);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -14,6 +27,36 @@ export default function CursiveAutograph() {
   // 0 → 1 as section scrolls into view
   const maskEdge = useTransform(scrollYProgress, [0, 1], ['-5%', '112%']);
   const opacity  = useTransform(scrollYProgress, [0, 0.08], [0, 1]);
+
+  if (isMobile) {
+    return (
+      <div
+        ref={containerRef}
+        className="relative select-none pointer-events-none w-full flex justify-end pr-2 pt-3"
+      >
+        {/* Soft guide underline */}
+        <div className="relative flex flex-col items-end gap-0.5">
+          <span
+            className="cursive-text leading-none whitespace-nowrap"
+            style={{
+              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              // Gold gradient text
+              background: 'linear-gradient(135deg, #c9a227 0%, #f0d060 40%, #d4af37 70%, #b8952a 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              // Subtle dreamy glow
+              filter: 'drop-shadow(0 0 12px rgba(212,175,55,0.45)) drop-shadow(0 0 4px rgba(212,175,55,0.25))',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Nency Soni
+          </span>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-gold/5 mt-1" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

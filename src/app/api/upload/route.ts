@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { verifyToken } from '@/lib/auth';
+import sharp from 'sharp';
 
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   const sessionToken = req.cookies.get('nency_session')?.value;
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
 
     const baseName = path.basename(file.name, ext).replace(/[^a-zA-Z0-9_-]/g, '');
-    const cleanName = `${baseName}-${Date.now()}${ext}`;
+    const isImage = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext);
 
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     
@@ -40,11 +41,50 @@ export async function POST(req: NextRequest) {
       await fs.mkdir(uploadsDir, { recursive: true });
     } catch {}
 
-    const filePath = path.join(uploadsDir, cleanName);
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    await fs.writeFile(filePath, buffer);
+    let cleanName = '';
+    let finalBuffer: Buffer;
+
+    if (isImage) {
+      cleanName = `${baseName}-${Date.now()}.webp`;
+      try {
+        let quality = 80;
+        const sharpImg = sharp(buffer);
+        const metadata = await sharpImg.metadata();
+        const width = metadata.width || 1200;
+        
+        if (width > 1200) {
+          finalBuffer = await sharpImg
+            .resize(1200)
+            .webp({ quality })
+            .toBuffer();
+        } else {
+          finalBuffer = await sharpImg
+            .webp({ quality })
+            .toBuffer();
+        }
+        
+        // If still over 200KB, downscale more
+        if (finalBuffer.length > 200 * 1024) {
+          finalBuffer = await sharp(buffer)
+            .resize(width > 900 ? 900 : width)
+            .webp({ quality: 60 })
+            .toBuffer();
+        }
+      } catch (err) {
+        console.warn("Server-side image compression fallback failed, writing original:", err);
+        finalBuffer = buffer;
+        cleanName = `${baseName}-${Date.now()}${ext}`;
+      }
+    } else {
+      cleanName = `${baseName}-${Date.now()}${ext}`;
+      finalBuffer = buffer;
+    }
+
+    const filePath = path.join(uploadsDir, cleanName);
+    await fs.writeFile(filePath, finalBuffer);
 
     const fileUrl = `/uploads/${cleanName}`;
     return NextResponse.json({ success: true, url: fileUrl });

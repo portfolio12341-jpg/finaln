@@ -260,19 +260,24 @@ body {
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 60% 50% at 15% 12%,
-      rgba(80, 110, 190, 0.18) 0%,
+      ellipse 65% 55% at 20% 30%,
+      rgba(0, 43, 128, 0.26) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 80% 65%,
+      rgba(10, 48, 110, 0.22) 0%,
       transparent 70%
     ),
     radial-gradient(
       ellipse 55% 50% at 85% 88%,
-      rgba(200, 155, 40, 0.15) 0%,
-      transparent 70%
+      rgba(200, 155, 40, 0.08) 0%,
+      transparent 75%
     ),
     radial-gradient(
       ellipse 80% 80% at 50% 50%,
       transparent 25%,
-      rgba(4, 3, 2, 0.88) 100%
+      rgba(3, 2, 2, 0.97) 100%
     );
   animation: ambient-breathe 30s ease-in-out infinite;
   will-change: opacity;

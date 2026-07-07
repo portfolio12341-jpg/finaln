@@ -9,6 +9,225 @@ import {
 } from 'lucide-react';
 import { DatabaseSchema, Education, Experience, Blog, GalleryItem, Certificate, ContactMessage, Milestone } from '@/lib/db';
 
+const compressImage = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (ext === 'svg' || ext === 'gif') {
+      return resolve(file);
+    }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.src = url;
+    
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(file);
+
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 1200;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      let quality = 0.8;
+      
+      const attemptCompression = () => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+
+          if (blob.size <= 200 * 1024 || quality <= 0.2) {
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".webp"), {
+              type: 'image/webp',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            quality -= 0.15;
+            canvas.width = Math.round(canvas.width * 0.85);
+            canvas.height = Math.round(canvas.height * 0.85);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            attemptCompression();
+          }
+        }, 'image/webp', quality);
+      };
+
+      attemptCompression();
+    };
+
+    img.onerror = (err) => {
+      URL.revokeObjectURL(url);
+      reject(err);
+    };
+  });
+};
+
+const compressVideo = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (!['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext || '')) {
+      return resolve(file);
+    }
+
+    const video = document.createElement('video');
+    const url = URL.createObjectURL(file);
+    video.src = url;
+    video.muted = true;
+    video.playsInline = true;
+    video.load();
+
+    video.onloadedmetadata = () => {
+      const maxDim = 480; 
+      let width = video.videoWidth;
+      let height = video.videoHeight;
+      
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      width = width - (width % 2);
+      height = height - (height % 2);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        return resolve(file);
+      }
+
+      const fps = 12;
+      const stream = (canvas as any).captureStream ? (canvas as any).captureStream(fps) : (canvas as any).mozCaptureStream ? (canvas as any).mozCaptureStream(fps) : null;
+      if (!stream) {
+        URL.revokeObjectURL(url);
+        return resolve(file);
+      }
+
+      let mimeType = 'video/webm;codecs=vp9';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') 
+            ? 'video/webm;codecs=vp8' 
+            : MediaRecorder.isTypeSupported('video/webm') 
+              ? 'video/webm' 
+              : 'video/mp4';
+        }
+      } else {
+        URL.revokeObjectURL(url);
+        return resolve(file);
+      }
+
+      const duration = video.duration || 10;
+      const targetSizeBits = 180 * 1024 * 8; 
+      const targetBitrate = Math.min(250000, Math.max(80000, Math.round(targetSizeBits / duration)));
+
+      let recorder: MediaRecorder;
+      try {
+        recorder = new MediaRecorder(stream, {
+          mimeType,
+          videoBitsPerSecond: targetBitrate
+        });
+      } catch (e) {
+        try {
+          recorder = new MediaRecorder(stream);
+        } catch (err) {
+          URL.revokeObjectURL(url);
+          return resolve(file);
+        }
+      }
+
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (ev) => {
+        if (ev.data && ev.data.size > 0) chunks.push(ev.data);
+      };
+
+      recorder.onstop = () => {
+        URL.revokeObjectURL(url);
+        const finalBlob = new Blob(chunks, { type: mimeType });
+        const finalExt = mimeType.includes('mp4') ? '.mp4' : '.webm';
+        const compressedFile = new File([finalBlob], file.name.replace(/\.[^/.]+$/, finalExt), {
+          type: mimeType,
+          lastModified: Date.now()
+        });
+        resolve(compressedFile);
+      };
+
+      video.playbackRate = 2.5;
+
+      const drawFrame = () => {
+        if (video.paused || video.ended) return;
+        ctx.drawImage(video, 0, 0, width, height);
+        setTimeout(() => {
+          requestAnimationFrame(drawFrame);
+        }, 1000 / fps);
+      };
+
+      video.onplay = () => {
+        requestAnimationFrame(drawFrame);
+      };
+
+      video.onended = () => {
+        recorder.stop();
+      };
+
+      recorder.start();
+      video.play().catch(err => {
+        console.error("Video playback start failed during compression:", err);
+        recorder.stop();
+      });
+    };
+
+    video.onerror = (err) => {
+      URL.revokeObjectURL(url);
+      reject(err);
+    };
+  });
+};
+
+const compressMedia = async (file: File, notify: (text: string) => void): Promise<File> => {
+  if (file.type.startsWith('image/')) {
+    notify('Compressing image to WebP under 200KB...');
+    try {
+      return await compressImage(file);
+    } catch (e) {
+      console.warn("Image compression failed, uploading original:", e);
+      return file;
+    }
+  } else if (file.type.startsWith('video/')) {
+    notify('Compressing video clip in browser under 200KB...');
+    try {
+      return await compressVideo(file);
+    } catch (e) {
+      console.warn("Video compression failed, uploading original:", e);
+      return file;
+    }
+  }
+  return file;
+};
+
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -94,8 +313,16 @@ export default function AdminDashboard() {
     if (!file || !db) return;
 
     setUploading(fieldType);
+
+    let fileToUpload = file;
+    try {
+      fileToUpload = await compressMedia(file, (msg) => showNotification('success', msg));
+    } catch (err) {
+      console.warn("Client-side compression failed, uploading original file:", err);
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileToUpload);
 
     try {
       const res = await fetch('/api/upload', {

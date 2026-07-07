@@ -33,7 +33,20 @@ const BlogMediaSlider = dynamic(() => import('./BlogMediaSlider'), {
 // scales (0.97 -> 1.0), and fades in (10% -> 100%), drifting slowly upward.
 function SectionWrapper({ children, id }: { children: React.ReactNode; id: string }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkMobile = () => {
+      const width = window.innerWidth;
+      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(width < 768 || mobileUA);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -42,6 +55,20 @@ function SectionWrapper({ children, id }: { children: React.ReactNode; id: strin
   const opacity = useTransform(scrollYProgress, [0.05, 0.22, 0.78, 0.95], [0.35, 1, 1, 0.35]);
   const scale = useTransform(scrollYProgress, [0.05, 0.22, 0.78, 0.95], [0.99, 1, 1, 0.99]);
   const yTranslate = useTransform(scrollYProgress, [0, 1], [15, -15]);
+
+  if (isMobile) {
+    return (
+      <section
+        id={id}
+        ref={containerRef}
+        className="min-h-screen flex items-center justify-center py-24 px-6 sm:px-8 w-full relative"
+      >
+        <div className="max-w-5xl mx-auto w-full relative z-10">
+          {children}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <motion.section
@@ -166,19 +193,19 @@ export default function PortfolioClient({ initialDb }: PortfolioClientProps) {
 
     return (
       <SectionWrapper id="home" key="home">
-        <div className={`flex flex-col ${alignClass} space-y-8 py-20`}>
+        <div className={`flex flex-col ${alignClass} space-y-4 pt-4 pb-16 -mt-6 sm:-mt-12`}>
           <div className="relative group">
-            <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-r from-blue-900/50 via-indigo-950/60 to-blue-950/50 blur-2xl opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 pointer-events-none" />
+            <div className="absolute inset-0 -m-16 rounded-full bg-gradient-to-r from-blue-900/50 via-indigo-950/60 to-blue-950/50 blur-3xl opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700 pointer-events-none" />
             <img
               src="/ns_logo.webp"
               alt="Nency Soni – Legal Research & Insights"
-              className="relative z-10 w-32 h-32 sm:w-44 sm:h-44 object-contain drop-shadow-[0_0_20px_rgba(30,58,138,0.55)] group-hover:scale-102 transition-transform duration-500"
+              className="relative z-10 w-64 h-64 sm:w-[352px] sm:h-[352px] object-contain drop-shadow-[0_0_30px_rgba(30,58,138,0.55)] group-hover:scale-102 transition-transform duration-500"
             />
           </div>
 
           <div className="space-y-4 w-full">
             <h1 
-              className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter serif-heading leading-none text-transparent bg-clip-text bg-[linear-gradient(135deg,#664400_0%,#d4af37_25%,#ffd700_45%,#fff3b3_50%,#ffd700_55%,#d4af37_75%,#855800_100%)] drop-shadow-[0_0_15px_rgba(212,175,55,0.35)] select-none box-reflect"
+              className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter serif-heading leading-none text-transparent bg-clip-text bg-[linear-gradient(135deg,#9c8a60_0%,#e5dec9_25%,#bfa97c_45%,#f5efe0_55%,#a8956b_70%,#d8cfb8_85%,#887346_100%)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.65)] drop-shadow-[0_0_12px_rgba(197,168,128,0.18)] select-none box-reflect"
             >
               {(db.personal.name || "NENCY SONI").toUpperCase()}
             </h1>
@@ -614,6 +641,20 @@ export default function PortfolioClient({ initialDb }: PortfolioClientProps) {
             >
               <Linkedin className="w-4 h-4 text-[#0a66c2] group-hover:text-white transition-colors" />
               <span>LinkedIn</span>
+            </a>
+          </div>
+
+          <div className="pt-2">
+            <a 
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="inline-flex items-center space-x-2 px-8 py-3.5 rounded-full font-mono text-xs sm:text-sm font-bold tracking-wider uppercase text-black bg-[linear-gradient(135deg,#c9a227_0%,#f0d060_40%,#d4af37_70%,#b8952a_100%)] shadow-[0_0_15px_rgba(212,175,55,0.35)] hover:shadow-[0_0_25px_rgba(212,175,55,0.65)] hover:scale-105 transition-all duration-300 relative group overflow-hidden"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-black animate-pulse" />
+                <span>Enter Community</span>
+              </span>
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </a>
           </div>
         </div>

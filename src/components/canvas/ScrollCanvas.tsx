@@ -1,11 +1,10 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 
-const TOTAL_FRAMES = 900;
+const TOTAL_FRAMES = 900; // Using all 900 frames
 const BUFFER = 20;        // frames to preload ahead/behind current
-const MAX_CACHE = 60;     // max decoded ImageBitmaps in GPU memory
+const MAX_CACHE = 80;     // max decoded ImageBitmaps in GPU memory
 
-// URL-encode the folder name that contains spaces and parentheses
 function getFrameUrl(index: number): string {
   const n = index.toString().padStart(3, '0');
   return `/bg-frames-webp/ezgif-frame-${n}.webp`;
@@ -17,60 +16,170 @@ class FrameEngine {
 
   // Storage
   private blobCache   = new Map<number, Blob>();
-  private bitmapCache = new Map<number, ImageBitmap>();
+  private bitmapCache = new Map<number, ImageBitmap | HTMLImageElement>();
   private lruOrder: number[] = [];
   private fetching    = new Map<number, AbortController>();
 
-  // Physics
+  // Scroll Tracking
   private targetProg  = 0;
   private currentProg = 0;
-  private velocity    = 0;
-  private lastTime    = 0;
-  private raf: number | null = null;
   private lastFrame   = -1;
+  private screenFrame = -1;
+  private lastScrollTime = 0;
+
+  // Adaptive Optimization Settings
+  private stride = 1;
+  private bufferSize = 8;
+  private maxCache = 60;
+  private maxConcurrent = 3;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
     if (!ctx) throw new Error('No 2d context');
     this.ctx = ctx;
+    this.detectDeviceCapabilities();
+  }
+
+  private detectDeviceCapabilities() {
+    if (typeof window === 'undefined') return;
+
+    const width = window.innerWidth;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+      || (width < 768);
+    const isTablet = width >= 768 && width < 1024;
+    const cores = navigator.hardwareConcurrency || 4;
+
+    if (isMobile || cores <= 4) {
+      this.stride = 4;         // Fetch and render every 4th frame (225 frames total)
+      this.bufferSize = 3;     // Low buffer to minimize parallel requests
+      this.maxCache = 25;      // Small VRAM footprint to prevent tab crashes
+      this.maxConcurrent = 3;  // Limit concurrent HTTP requests to 3
+    } else if (isTablet) {
+      this.stride = 2;         // Fetch and render every 2nd frame (450 frames total)
+      this.bufferSize = 6;
+      this.maxCache = 45;
+      this.maxConcurrent = 4;
+    } else {
+      this.stride = 1;         // Full quality on desktop (900 frames total)
+      this.bufferSize = 12;
+      this.maxCache = 80;
+      this.maxConcurrent = 4;
+    }
   }
 
   // ── Loading ──────────────────────────────────────────────────────────────
 
   private async fetchFrame(i: number): Promise<Blob> {
     if (this.blobCache.has(i)) return this.blobCache.get(i)!;
+
+    // Active Connection Throttling (Priority Queue via Abort)
+    const refFrame = this.lastFrame !== -1 ? this.lastFrame : 1;
+    if (this.fetching.size >= this.maxConcurrent) {
+      let maxDist = -1;
+      let maxDistFrame = -1;
+
+      for (const activeFrame of this.fetching.keys()) {
+        const dist = Math.abs(activeFrame - refFrame);
+        if (dist > maxDist) {
+          maxDist = dist;
+          maxDistFrame = activeFrame;
+        }
+      }
+
+      const thisDist = Math.abs(i - refFrame);
+      if (thisDist === 0) {
+        // This is the current frame we want to render immediately!
+        // We MUST load it. Abort the furthest active fetch to make room.
+        if (maxDistFrame !== -1) {
+          this.fetching.get(maxDistFrame)?.abort();
+          this.fetching.delete(maxDistFrame);
+        }
+      } else if (maxDistFrame !== -1 && maxDist > thisDist) {
+        // This is a prefetch frame that is closer than the furthest active fetch.
+        // Abort the furthest active fetch to free up a slot.
+        this.fetching.get(maxDistFrame)?.abort();
+        this.fetching.delete(maxDistFrame);
+      } else {
+        // This prefetch frame is too far, throttle/skip it.
+        throw new Error(`Fetch throttled for frame ${i}`);
+      }
+    }
+
     const ctrl = new AbortController();
     this.fetching.set(i, ctrl);
+
+    // 5-second timeout to prevent hanging fetches from freezing the engine
+    const timeoutId = setTimeout(() => {
+      ctrl.abort();
+    }, 5000);
+
     try {
       const res = await fetch(getFrameUrl(i), { signal: ctrl.signal });
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error(`HTTP ${res.status} for frame ${i}`);
       const blob = await res.blob();
       this.blobCache.set(i, blob);
       return blob;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      throw err;
     } finally {
       this.fetching.delete(i);
     }
   }
 
-  private async loadBitmap(i: number): Promise<ImageBitmap> {
+  private async loadBitmap(i: number): Promise<ImageBitmap | HTMLImageElement> {
     if (this.bitmapCache.has(i)) return this.bitmapCache.get(i)!;
     const blob   = await this.fetchFrame(i);
-    const bitmap = await createImageBitmap(blob);
-    this.bitmapCache.set(i, bitmap);
-    this.lruOrder.push(i);
-    // Evict oldest if cache too large
-    while (this.lruOrder.length > MAX_CACHE) {
-      const evict = this.lruOrder.shift()!;
-      this.bitmapCache.get(evict)?.close();
-      this.bitmapCache.delete(evict);
+    
+    try {
+      if (typeof createImageBitmap !== 'undefined') {
+        const bitmap = await createImageBitmap(blob);
+        this.bitmapCache.set(i, bitmap);
+        this.lruOrder.push(i);
+        this.evictCache();
+        return bitmap;
+      }
+    } catch (e) {
+      console.warn(`createImageBitmap failed for frame ${i}, falling back to HTMLImageElement:`, e);
     }
-    return bitmap;
+
+    // Fallback using HTMLImageElement
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        this.bitmapCache.set(i, img);
+        this.lruOrder.push(i);
+        this.evictCache();
+        resolve(img);
+      };
+      img.onerror = (err) => {
+        URL.revokeObjectURL(url);
+        reject(err);
+      };
+      img.src = url;
+    });
   }
 
-  // Preload the first ~15 frames so first render is instant
+  private evictCache() {
+    while (this.lruOrder.length > this.maxCache) {
+      const evict = this.lruOrder.shift()!;
+      const cached = this.bitmapCache.get(evict);
+      if (cached) {
+        if (typeof ImageBitmap !== 'undefined' && cached instanceof ImageBitmap) {
+          try { cached.close(); } catch {}
+        }
+        this.bitmapCache.delete(evict);
+      }
+    }
+  }
+
+  // Preload the first ~15 active frames so first render is instant
   async preloadInitial(onProgress: (p: number) => void): Promise<void> {
-    const frames = Array.from({ length: 15 }, (_, i) => i + 1);
+    const frames = Array.from({ length: 15 }, (_, i) => i * this.stride + 1).filter(f => f <= TOTAL_FRAMES);
     let done = 0;
     await Promise.all(frames.map(i =>
       this.loadBitmap(i).then(() => {
@@ -80,72 +189,128 @@ class FrameEngine {
     ));
   }
 
+  // Start loading all remaining WebP Blobs sequentially in the background
+  startBackgroundPreload() {
+    let index = 1;
+    
+    const loadNext = async () => {
+      if (index > TOTAL_FRAMES) {
+        console.log("Background preloading of all frames complete.");
+        return;
+      }
+      
+      // If the user is scrolling, pause background loading to save bandwidth
+      if (Date.now() - this.lastScrollTime < 300) {
+        setTimeout(loadNext, 200); // Check again in 200ms
+        return;
+      }
+      
+      const frameIndex = index;
+      index++;
+      
+      if (!this.blobCache.has(frameIndex) && !this.fetching.has(frameIndex)) {
+        try {
+          const ctrl = new AbortController();
+          this.fetching.set(frameIndex, ctrl);
+          const res = await fetch(getFrameUrl(frameIndex), { signal: ctrl.signal });
+          if (res.ok) {
+            const blob = await res.blob();
+            this.blobCache.set(frameIndex, blob);
+          }
+        } catch (e) {
+          index--; 
+        } finally {
+          this.fetching.delete(frameIndex);
+        }
+      }
+      
+      setTimeout(loadNext, 30);
+    };
+    
+    setTimeout(loadNext, 1000);
+  }
+
   // ── Prefetch buffer around current frame ─────────────────────────────────
 
   private prefetch(frame: number) {
-    const start = Math.max(1, frame - BUFFER);
-    const end   = Math.min(TOTAL_FRAMES, frame + BUFFER);
-    for (let i = start; i <= end; i++) {
+    const start = Math.max(1, frame - this.bufferSize * this.stride);
+    const end   = Math.min(TOTAL_FRAMES, frame + this.bufferSize * this.stride);
+
+    // Prefetch only at the correct stride grid
+    for (let i = start; i <= end; i += this.stride) {
       if (!this.bitmapCache.has(i) && !this.blobCache.has(i) && !this.fetching.has(i)) {
         this.loadBitmap(i).catch(() => null);
       }
     }
-    // Abort fetches too far outside window
+
+    // Abort fetches too far outside our active window
     this.fetching.forEach((ctrl, fi) => {
-      if (fi < start - 5 || fi > end + 5) { ctrl.abort(); this.fetching.delete(fi); }
+      if (fi < start - 3 * this.stride || fi > end + 3 * this.stride) {
+        ctrl.abort();
+        this.fetching.delete(fi);
+      }
     });
   }
 
-  // ── Physics ───────────────────────────────────────────────────────────────
+  // ── Scroll Handling ───────────────────────────────────────────────────────
 
   setTarget(progress: number) {
     this.targetProg = Math.min(1, Math.max(0, progress));
-    if (!this.raf) {
-      this.lastTime = 0;
-      this.raf = requestAnimationFrame(ts => this.loop(ts));
-    }
+    this.currentProg = this.targetProg;
+    this.lastScrollTime = Date.now();
+
+    // Resolve frame index based on stride
+    const rawFi = Math.min(TOTAL_FRAMES, Math.max(1, Math.round(this.currentProg * (TOTAL_FRAMES - 1)) + 1));
+    const step = Math.round((rawFi - 1) / this.stride);
+    const fi = Math.min(TOTAL_FRAMES, Math.max(1, step * this.stride + 1));
+
+    this.prefetch(fi);
+    this.renderFrame(fi);
   }
 
-  private loop(ts: number) {
-    if (!this.lastTime) this.lastTime = ts;
-    let dt = (ts - this.lastTime) / 1000;
-    this.lastTime = ts;
-    if (dt > 0.1) dt = 0.1;
-
-    // Critically-damped spring  ω=12, ζ=1
-    const k = 12, c = 2 * Math.sqrt(k);
-    const diff = this.targetProg - this.currentProg;
-    this.velocity  += (k * diff - c * this.velocity) * dt;
-    this.currentProg = Math.min(1, Math.max(0, this.currentProg + this.velocity * dt));
-
-    const fi = Math.min(TOTAL_FRAMES, Math.max(1, Math.round(this.currentProg * (TOTAL_FRAMES - 1)) + 1));
-    this.prefetch(fi);
-
+  private renderFrame(fi: number) {
     const bitmap = this.bitmapCache.get(fi);
-    if (bitmap && fi !== this.lastFrame) {
-      this.draw(bitmap);
+    if (bitmap) {
+      if (fi !== this.screenFrame) {
+        this.draw(bitmap);
+        this.screenFrame = fi;
+      }
       this.lastFrame = fi;
-    } else if (!bitmap) {
-      // Try to load on demand; meanwhile show nearest cached frame
-      this.loadBitmap(fi).then(bm => {
-        if (this.lastFrame !== fi) { this.draw(bm); this.lastFrame = fi; }
-      }).catch(() => null);
-    }
-
-    const settled = Math.abs(this.targetProg - this.currentProg) < 0.0001
-                 && Math.abs(this.velocity) < 0.0001;
-    if (settled) {
-      this.currentProg = this.targetProg;
-      this.velocity    = 0;
-      this.raf         = null;
     } else {
-      this.raf = requestAnimationFrame(t => this.loop(t));
+      // Nearest-neighbor fallback: find nearest cached frame
+      let nearestFrame = -1;
+      let minDiff = Infinity;
+      for (const cachedFrame of this.bitmapCache.keys()) {
+        const d = Math.abs(cachedFrame - fi);
+        if (d < minDiff) {
+          minDiff = d;
+          nearestFrame = cachedFrame;
+        }
+      }
+
+      if (nearestFrame !== -1 && nearestFrame !== this.screenFrame) {
+        const nearestBitmap = this.bitmapCache.get(nearestFrame);
+        if (nearestBitmap) {
+          this.draw(nearestBitmap);
+          this.screenFrame = nearestFrame;
+        }
+      }
+
+      // Load on demand
+      this.loadBitmap(fi).then(bm => {
+        if (this.currentProg === this.targetProg && fi !== this.screenFrame) {
+          this.draw(bm);
+          this.screenFrame = fi;
+        }
+      }).catch(() => null);
+
+      this.lastFrame = fi;
     }
   }
 
   // ── Rendering ─────────────────────────────────────────────────────────────
 
-  private draw(bm: ImageBitmap) {
+  private draw(bm: ImageBitmap | HTMLImageElement) {
     const { width: cw, height: ch } = this.canvas;
     const scale = Math.max(cw / bm.width, ch / bm.height);
     const w = bm.width  * scale;
@@ -161,9 +326,12 @@ class FrameEngine {
   }
 
   destroy() {
-    if (this.raf) cancelAnimationFrame(this.raf);
     this.fetching.forEach(c => c.abort());
-    this.bitmapCache.forEach(bm => { try { bm.close(); } catch {} });
+    this.bitmapCache.forEach(bm => {
+      if (typeof ImageBitmap !== 'undefined' && bm instanceof ImageBitmap) {
+        try { bm.close(); } catch {}
+      }
+    });
   }
 }
 
@@ -192,13 +360,28 @@ export default function ScrollCanvas() {
     window.addEventListener('resize', onResize);
     window.addEventListener('scroll', onScroll, { passive: true });
 
+    // 2.5s Failsafe Timeout: Ensure the page is shown even if preloading hangs or takes too long
+    const failsafeId = setTimeout(() => {
+      setReady(true);
+      onScroll();
+    }, 2500);
+
     // Preload first frames then mark ready
     engine.preloadInitial(() => {}).then(() => {
+      clearTimeout(failsafeId);
       setReady(true);
       onScroll(); // sync to current scroll position
+      engine.startBackgroundPreload(); // Start silent background loading!
+    }).catch((err) => {
+      console.warn("Preload failed, falling back to instant render:", err);
+      clearTimeout(failsafeId);
+      setReady(true);
+      onScroll();
+      engine.startBackgroundPreload(); // Start silent background loading!
     });
 
     return () => {
+      clearTimeout(failsafeId);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll);
       engine.destroy();
@@ -217,7 +400,7 @@ export default function ScrollCanvas() {
           display: 'block',
           width: '100%',
           height: '100%',
-          opacity: ready ? 0.6 : 0,
+          opacity: ready ? 0.35 : 0,
           transition: 'opacity 0.6s ease',
           transform: 'translate3d(0,0,0)',
           willChange: 'transform',
