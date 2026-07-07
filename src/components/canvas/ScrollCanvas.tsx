@@ -26,6 +26,8 @@ class FrameEngine {
   private lastFrame   = -1;
   private screenFrame = -1;
   private lastScrollTime = 0;
+  private ticking = false;
+  private lastDrawTime = 0;
 
   // Adaptive Optimization Settings
   private stride = 1;
@@ -256,8 +258,50 @@ class FrameEngine {
 
   setTarget(progress: number) {
     this.targetProg = Math.min(1, Math.max(0, progress));
-    this.currentProg = this.targetProg;
     this.lastScrollTime = Date.now();
+
+    if (!this.ticking) {
+      this.ticking = true;
+      this.lastDrawTime = performance.now();
+      requestAnimationFrame(this.tick.bind(this));
+    }
+  }
+
+  private tick() {
+    if (!this.canvas || !this.ctx) {
+      this.ticking = false;
+      return;
+    }
+
+    const now = performance.now();
+    const dt = this.lastDrawTime ? (now - this.lastDrawTime) : 16.67;
+
+    // Limit maximum FPS to 80 (draw interval must be at least 12.5ms)
+    if (now - this.lastDrawTime < 12.5) {
+      requestAnimationFrame(this.tick.bind(this));
+      return;
+    }
+
+    // Keep minimum FPS at 20 (cap maximum physics time-step to 50ms)
+    const clampedDt = Math.min(50, dt);
+
+    const diff = this.targetProg - this.currentProg;
+
+    if (Math.abs(diff) < 0.0001) {
+      this.currentProg = this.targetProg;
+      this.ticking = false;
+    } else {
+      // Speed Limit: Cap maximum change rate per frame to make transitions smooth
+      // A maxStep of 0.015 per 16.67ms frame (takes at least ~1.1s for a full 100% top-to-bottom scroll)
+      // limits rapid scroll jumps while keeping it highly responsive.
+      const maxStep = 0.015 * (clampedDt / 16.67);
+      const step = Math.sign(diff) * Math.min(Math.abs(diff), maxStep);
+      this.currentProg += step;
+      
+      requestAnimationFrame(this.tick.bind(this));
+    }
+
+    this.lastDrawTime = now;
 
     // Resolve frame index based on stride
     const rawFi = Math.min(TOTAL_FRAMES, Math.max(1, Math.round(this.currentProg * (TOTAL_FRAMES - 1)) + 1));
